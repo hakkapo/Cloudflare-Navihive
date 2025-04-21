@@ -21,11 +21,13 @@ import {
     Avatar,
     useTheme,
     SelectChangeEvent,
+    InputAdornment,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 
 interface SiteSettingsModalProps {
     site: Site;
@@ -33,6 +35,26 @@ interface SiteSettingsModalProps {
     onDelete: (siteId: number) => void;
     onClose: () => void;
     groups?: Group[]; // 可选的分组列表
+    iconApi?: string; // 图标API配置
+}
+
+// 辅助函数：提取域名
+function extractDomain(url: string): string | null {
+  if (!url) return null;
+  
+  try {
+      // 尝试自动添加协议头，如果缺少的话
+      let fullUrl = url;
+      if (!/^https?:\/\//i.test(url)) {
+          fullUrl = 'http://' + url;
+      }
+      const parsedUrl = new URL(fullUrl);
+      return parsedUrl.hostname;
+  } catch (e) {
+      // 尝试备用方法
+      const match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+      return match && match[1] ? match[1] : url;
+  }
 }
 
 export default function SiteSettingsModal({
@@ -41,6 +63,7 @@ export default function SiteSettingsModal({
     onDelete,
     onClose,
     groups = [],
+    iconApi = "https://www.faviconextractor.com/favicon/{domain}?larger=true",
 }: SiteSettingsModalProps) {
     const theme = useTheme();
 
@@ -245,6 +268,36 @@ export default function SiteSettingsModal({
                                     placeholder='https://example.com/icon.png'
                                     variant='outlined'
                                     size='small'
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() => {
+                                                        if (!formData.url) {
+                                                            // handleError("请先输入站点URL");
+                                                            return;
+                                                        }
+                                                        const domain = extractDomain(formData.url);
+                                                        if (domain) {
+                                                            const actualIconApi = iconApi || "https://www.faviconextractor.com/favicon/{domain}?larger=true";
+                                                            const iconUrl = actualIconApi.replace("{domain}", domain);
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                icon: iconUrl
+                                                            }));
+                                                            setIconPreview(iconUrl);
+                                                        } else {
+                                                            // handleError("无法从URL中获取域名");
+                                                        }
+                                                    }}
+                                                    edge="end"
+                                                    title="自动获取图标"
+                                                >
+                                                    <AutoFixHighIcon />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                             </Box>
                         </Box>

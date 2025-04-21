@@ -40,6 +40,7 @@ interface GroupCardProps {
     onAddSite?: (groupId: number) => void; // 新增添加卡片的可选回调函数
     onUpdateGroup?: (group: Group) => void; // 更新分组的回调函数
     onDeleteGroup?: (groupId: number) => void; // 删除分组的回调函数
+    configs?: Record<string, string>; // 传入配置
 }
 
 const GroupCard: React.FC<GroupCardProps> = ({
@@ -53,6 +54,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
     onAddSite,
     onUpdateGroup,
     onDeleteGroup,
+    configs,
 }) => {
     // 添加本地状态来管理站点排序
     const [sites, setSites] = useState<Site[]>(group.sites);
@@ -191,6 +193,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
                                             onDelete={onDelete}
                                             isEditMode={true}
                                             index={idx}
+                                            iconApi={configs?.["site.iconApi"]} // 传入iconApi配置
                                         />
                                     </Box>
                                 ))}
@@ -230,6 +233,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
                             onUpdate={onUpdate}
                             onDelete={onDelete}
                             isEditMode={false}
+                            iconApi={configs?.["site.iconApi"]} // 传入iconApi配置
                         />
                     </Box>
                 ))}
