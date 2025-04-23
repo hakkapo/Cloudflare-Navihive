@@ -400,6 +400,7 @@ interface Env {
 interface LoginInput {
     username?: string;
     password?: string;
+    rememberMe?: boolean;
 }
 
 interface GroupInput {
@@ -431,6 +432,10 @@ function validateLogin(data: LoginInput): { valid: boolean; errors?: string[] } 
 
     if (!data.password || typeof data.password !== "string") {
         errors.push("密码不能为空且必须是字符串");
+    }
+
+    if (data.rememberMe !== undefined && typeof data.rememberMe !== "boolean") {
+        errors.push("记住我选项必须是布尔值");
     }
 
     return { valid: errors.length === 0, errors };
